@@ -5,7 +5,7 @@
 // dependencies.CellularHelper=0.0.4
 // dependencies.Adafruit_Sensor=1.0.2
 // dependencies.Adafruit_DHT_Particle=0.0.2
-// dependencies.google-maps-device-locator=0.0.4
+// dependencies.google-maps-device-locator=0.0.4pa
 #include <google-maps-device-locator.h>
 #include <AssetTracker.h>
 

@@ -1,5 +1,8 @@
 ## Using c.l.i
 
+
+particle upgrade
+
 ```
 particle 
 LaurusNobilis:ParticleElectron grantsteinfeld$ particle login
@@ -11,6 +14,9 @@ LaurusNobilis:ParticleElectron grantsteinfeld$ particle login
 ```
 
     > Successfully completed login!
+
+
+    ### confirm your particle is listed
     LaurusNobilis:ParticleElectron grantsteinfeld$ particle list
     ichmilatis-pragma [3b0027000647373336373936] (Electron) is online
     Functions:
@@ -20,18 +26,25 @@ LaurusNobilis:ParticleElectron grantsteinfeld$ particle login
         int GetRecentXYZ(String args)
     LaurusNobilis:ParticleElectron grantsteinfeld$
 
+### lsusb ? may work ?
+may not be necessary if got this far?
+
+### so what libraries do you have?
+
 
 
 
 ### DHT11
 
-Wired up ...
+Wire up ...
 https://learn.adafruit.com/dht/connecting-to-a-dhtxx-sensor
+
+<< my photos ... explain video if works!!>>
 
 //copiend John's properties off WatsonIoTAssetTracker.ino
 updated project.properties
 
-#### put particle into USB< x > mode
+#### put particle into DFU (USB cable connected ) mode
 
 
 -----------------------
@@ -50,6 +63,8 @@ release left button [x]
 should be flashing yellow!!
 ```
 
+[777]
+
 
 #### is usb connected?
 
@@ -57,98 +72,138 @@ use
 ```sh
 lsusb
 
+#tricky bit - restated mac!
+#here it shows up!!! :)
+2019-09-02 18:29:48.078 system_profiler[1676:10223] SPUSBDevice: IOCreatePlugInInterfaceForService failed 0xe00002be
+...
+Bus 020 Device 007: ID 2b04:c00a 2b04 Electron  Serial: 3b0027000647373336373936
+...
+
+```
+### Another way to check you are connected properly
+## DF UTIL
+[install and useage here](https://docs.particle.io/support/particle-tools-faq/installing-dfu-util/)
+
+ 
+```sh
+dfu-util -l
+LaurusNobilis:IoT-AssetTracking-Perishable-Network-Blockchain grantsteinfeld$ dfu-util -l
+dfu-util 0.9
+
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2016 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+
+Found DFU: [2b04:d00a] ver=0250, devnum=9, cfg=1, intf=0, path="20-2", alt=1, name="@DCT Flash   /0x00000000/01*016Kg", serial="3b0027000647373336373936"
+Found DFU: [2b04:d00a] ver=0250, devnum=9, cfg=1, intf=0, path="20-2", alt=0, name="@Internal Flash   /0x08000000/03*016Ka,01*016Kg,01*064Kg,07*128Kg", serial="3b0027000647373336373936"
+```
+
+found DFU!!! looks good!!
+
+
+
+
+
+#### see what libraries are avail for DHT?
+```sh
+particle library list *DHT*
+
+#Adafruit_DHT 0.0.4 232462 Spark Core DHT Library based on Adafruit Arduino DHT Library
+#Adafruit_DHT_Particle 0.0.2 55817 Spark Core DHT Library based on Adafruit Arduino DHT Library
+
+```
+we need the second one for particle
+
+
+#### add dependancy!
+``` sh
+
+particle library view Adafruit_DHT_Particle
+
+#success if you see!!
+Checking library Adafruit_DHT_Particle...
+Library Adafruit_DHT_Particle 0.0.2 installed.
+To view the library documentation and sources directly, please change to the directory /Users/grantsteinfeld/Particle/community/libraries/Adafruit_DHT_Particle@0.0.2
+```
+
+## Pro Tip you may need to do this for all libraries in your project.properties file!!
+
+### so now we should be ready to try compiling!
+```sh
+p w d  
+IoT-AssetTracking-Perishable-Network-Blockchain/ParticleElectron
+cd ..
+p w d 
+IoT-particle/git/IoT-AssetTracking-Perishable-Network-Blockchain
+#great so now you are one level above the 
+particle compile electron ParticleElectron --saveTo WatsonIoTAssetTracker.bin
+
+particle compile electron ParticleElectron --saveTo WatsonIoTAssetTracker.bin
+
+
+Including:
+    ParticleElectron/WatsonIoTAssetTracker.ino
+    ParticleElectron/project.properties
+attempting to compile firmware
+downloading binary from: /v1/binaries/5d6d92000be7a300013dfe90
+saving to: WatsonIoTAssetTracker.bin
+Memory use:
+   text	   data	    bss	    dec	    hex	filename
+  29468	    180	   2264	  31912	   7ca8	/workspace/target/workspace.elf
+
+Compile succeeded.
+Saved firmware to: /Users/grantsteinfeld/Documents/dev/IoT-particle/git/IoT-AssetTracking-Perishable-Network-Blockchain/WatsonIoTAssetTracker.bin
+```
+
+### Great we compiled the ino!  
+### Lets flash the particle with the new binary!
+```sh
+particle flash --usb WatsonIoTAssetTracker.bin
+
+#!!! I was unable to detect any devices in DFU mode... [777]
+EEK!
+RESET PUSH LEFT [y] button
+restarted mac ran lsusb and dfu-util -l ..> looked better!
+
+#Flash success!
+
+```
+
+### running the serial monitor to check on things
+```sh
+particle serial monitor
+
 ```
 
 
-#### see what libraries are avail
-#### need to add dependancies with
-particle library view OneWire
 
 
 
 
-OneWire 2.0.3 [verified] 366360 Dallas 1-Wire protocol with support for DS18B20, DS1820, DS1822
-Ubidots 3.1.3 [verified] 117110 Ubidots library for Particle devices
-google-maps-device-locator 0.0.5 [verified] 103788 Library for using Google Maps Device Locator Intergration
-
-
-updated project.properties
-
-
-LaurusNobilis:ParticleElectron grantsteinfeld$ particle library add google-maps-device-locator
-> Library google-maps-device-locator 0.0.5 has been added to the project.
-> To get started using this library, run particle library view google-maps-device-locator to view the library documentation and sources.
-
-
-from John Walicki to Everyone:    12:21  PM
-$ particle library view OneWire
-Checking library OneWire...
-Library OneWire 2.0.3 installed.
-To view the library documentation and sources directly, please change to the directory /home/walicki-rhel7-p50/Particle/community/libraries/OneWire@2.0.3
-from John Walicki to Everyone:    12:21  PM
-$ ls ~/Particle/community/libraries/
-Adafruit_DHT@0.0.2           Adafruit_Sensor@1.0.2  google-maps-device-locator@0.0.4  MQTT-TLS@0.2.20
-Adafruit_DHT_Particle@0.0.2  adafruit-sht31@0.0.7   Grove-Ultrasonic-Ranger@1.0.1     OneWire@2.0.1
-Adafruit_GPS@1.0.3           Arduino@0.0.10         MQTT@0.4.23                       OneWire@2.0.3
-Adafruit_LIS3DH@1.0.3        AssetTracker@0.0.10    MQTT@0.4.26
-Adafruit_LSM303_U@1.0.8      CellularHelper@0.0.4   MQTT@0.4.29
 
 
 
 
-      608  particle compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
-  609  ls
-  610  cd ParticleElectron/
-  611  ls
-  612  particle compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
-  613  particle --no-update-check compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
-  614  lsusb
-  615  clear
-  616  tmux
-  617  brew install tmux
-  618  tmux
-  619  tmux
-  620  tmux -S foo
-  621  clea
-  622  clear
-  623  history
-  624  particle compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
-  625  cat project.properties
-  626  particle library list
-  627  particle library view OneWire
-  628  pushd /Users/grantsteinfeld/Particle/community/libraries/OneWire@2.0.3
-  629  ls
-  630  tree -L 2
-  631  popd
-  632  ls
-  633  rm -f OneWire.*
-  634  ll
-  635  ls
-  636  vim project.properties
-  637  cat project.properties
-  638  clear
-  639  cat project.properties
-  640  history
-  641  history | grep particle
-  642  history | grep particle | less
-  643  particle compile electron WatsonIoTAssetTracker.ino --saveTo WatsonIoTAssetTracker.bin
-  644  particle compile electron WatsonIoTAssetTracker --saveTo WatsonIoTAssetTracker.bin
-  645  ls
-  646  rm -f *.cpp
-  647  rm -f *.h
-  648  ls
-  649  rm -rf foo
-  650  ls
-  651  cd ..
-  652  ls
-  653  particle compile electron ParticleElectron --saveTo WatsonIoTAssetTracker.bin
-  654  ls
-  655  particle flash --usb WatsonIoTAssetTracker.bin
-  656  particle serial monitor
-  657  particle serial monitor
-  658  particle serial monitor
-  659  clear
-  660  history
+vvvvvvv
 
 
+
+
+## Troubleshooting
+
+[777]
+Restart computer - usb seems to remember!
+ 
+
+!!! I was unable to detect any devices in DFU mode...
+
+> Your device will blink yellow when in DFU mode.
+> If your device is not blinking yellow, please:
+
+1) Press and hold both the RESET/RST and MODE/SETUP buttons simultaneously.
+
+2) Release only the RESET/RST button while continuing to hold the MODE/SETUP button.
+
+3) Release the MODE/SETUP button once the device begins to blink yellow.
     
