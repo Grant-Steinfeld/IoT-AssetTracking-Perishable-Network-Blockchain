@@ -1,7 +1,69 @@
+## Using c.l.i
+
+```
+particle 
+LaurusNobilis:ParticleElectron grantsteinfeld$ particle login
+? Please enter your email address grant.steinfeld.tech@gmail.com
+
+#email
+#password
+
+```
+
+    > Successfully completed login!
+    LaurusNobilis:ParticleElectron grantsteinfeld$ particle list
+    ichmilatis-pragma [3b0027000647373336373936] (Electron) is online
+    Functions:
+        int SetInterval(String args)
+        int GetCurrTemp(String args)
+        int SetXYZThresh(String args)
+        int GetRecentXYZ(String args)
+    LaurusNobilis:ParticleElectron grantsteinfeld$
+
+
+
+
 ### DHT11
 
 Wired up ...
 https://learn.adafruit.com/dht/connecting-to-a-dhtxx-sensor
+
+//copiend John's properties off WatsonIoTAssetTracker.ino
+updated project.properties
+
+#### put particle into USB< x > mode
+
+
+-----------------------
+[x]  << rgb led>> [y]
+
+||
+usb cable
+------------------------
+
+
+push both buttons
+hold 5sec
+release left button [x]
+
+``` 
+should be flashing yellow!!
+```
+
+
+#### is usb connected?
+
+use 
+```sh
+lsusb
+
+```
+
+
+#### see what libraries are avail
+#### need to add dependancies with
+particle library view OneWire
+
 
 
 
