@@ -1,0 +1,92 @@
+### DHT11
+
+Wired up ...
+https://learn.adafruit.com/dht/connecting-to-a-dhtxx-sensor
+
+
+
+OneWire 2.0.3 [verified] 366360 Dallas 1-Wire protocol with support for DS18B20, DS1820, DS1822
+Ubidots 3.1.3 [verified] 117110 Ubidots library for Particle devices
+google-maps-device-locator 0.0.5 [verified] 103788 Library for using Google Maps Device Locator Intergration
+
+
+updated project.properties
+
+
+LaurusNobilis:ParticleElectron grantsteinfeld$ particle library add google-maps-device-locator
+> Library google-maps-device-locator 0.0.5 has been added to the project.
+> To get started using this library, run particle library view google-maps-device-locator to view the library documentation and sources.
+
+
+from John Walicki to Everyone:    12:21  PM
+$ particle library view OneWire
+Checking library OneWire...
+Library OneWire 2.0.3 installed.
+To view the library documentation and sources directly, please change to the directory /home/walicki-rhel7-p50/Particle/community/libraries/OneWire@2.0.3
+from John Walicki to Everyone:    12:21  PM
+$ ls ~/Particle/community/libraries/
+Adafruit_DHT@0.0.2           Adafruit_Sensor@1.0.2  google-maps-device-locator@0.0.4  MQTT-TLS@0.2.20
+Adafruit_DHT_Particle@0.0.2  adafruit-sht31@0.0.7   Grove-Ultrasonic-Ranger@1.0.1     OneWire@2.0.1
+Adafruit_GPS@1.0.3           Arduino@0.0.10         MQTT@0.4.23                       OneWire@2.0.3
+Adafruit_LIS3DH@1.0.3        AssetTracker@0.0.10    MQTT@0.4.26
+Adafruit_LSM303_U@1.0.8      CellularHelper@0.0.4   MQTT@0.4.29
+
+
+
+
+      608  particle compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
+  609  ls
+  610  cd ParticleElectron/
+  611  ls
+  612  particle compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
+  613  particle --no-update-check compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
+  614  lsusb
+  615  clear
+  616  tmux
+  617  brew install tmux
+  618  tmux
+  619  tmux
+  620  tmux -S foo
+  621  clea
+  622  clear
+  623  history
+  624  particle compile electron WatsonIoTAssetTracker.ino google-maps-device-locator.cpp google-maps-device-locator.h OneWire.cpp OneWire.h --saveTo WatsonIoTAssetTracker.bin
+  625  cat project.properties
+  626  particle library list
+  627  particle library view OneWire
+  628  pushd /Users/grantsteinfeld/Particle/community/libraries/OneWire@2.0.3
+  629  ls
+  630  tree -L 2
+  631  popd
+  632  ls
+  633  rm -f OneWire.*
+  634  ll
+  635  ls
+  636  vim project.properties
+  637  cat project.properties
+  638  clear
+  639  cat project.properties
+  640  history
+  641  history | grep particle
+  642  history | grep particle | less
+  643  particle compile electron WatsonIoTAssetTracker.ino --saveTo WatsonIoTAssetTracker.bin
+  644  particle compile electron WatsonIoTAssetTracker --saveTo WatsonIoTAssetTracker.bin
+  645  ls
+  646  rm -f *.cpp
+  647  rm -f *.h
+  648  ls
+  649  rm -rf foo
+  650  ls
+  651  cd ..
+  652  ls
+  653  particle compile electron ParticleElectron --saveTo WatsonIoTAssetTracker.bin
+  654  ls
+  655  particle flash --usb WatsonIoTAssetTracker.bin
+  656  particle serial monitor
+  657  particle serial monitor
+  658  particle serial monitor
+  659  clear
+  660  history
+
+
+    
