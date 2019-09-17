@@ -8,7 +8,7 @@ AssetTracker t = AssetTracker();
 int ledonboard = D7;
 
           
-
+SYSTEM_MODE(SEMI_AUTOMATIC);
 void setup() {
      
    t.begin();  // Start the DHT sensor
@@ -25,7 +25,7 @@ void setup() {
    // Turn off LED on the Particle board when the application starts
    digitalWrite(ledonboard, LOW);
 
-
+   Particle.connect();
 }   
 
 void myHandler(const char *event, const char *data) {
@@ -33,7 +33,8 @@ void myHandler(const char *event, const char *data) {
      Serial.println(data);
 }
 
-int AssetTrackerGetCurrentTemp(String Coordinates) {
+float AssetTrackerGetCurrentTemp(String Coordinates) {
+     
     float celsius, fahrenheit;
     // Read Celsius and Fahrenheit values from DHT sensor
     celsius    = dht.getTempCelcius();
@@ -49,17 +50,19 @@ int AssetTrackerGetCurrentTemp(String Coordinates) {
     Particle.publish("temperature", TempPlusLocation, PRIVATE); // publish to webhook
     Serial.print( "Sending AssetTrackerTemperatureEvent : " );
     Serial.print(TempPlusLocation);
-    return 9795;
+    return fahrenheit;
 
 }
 
 
 void loop() {
   // Get some data
-  int ret = AssetTrackerGetCurrentTemp("bahhumbug");
+  digitalWrite(ledonboard, HIGH);
+  float ret = AssetTrackerGetCurrentTemp("bahhumbug");
   // Trigger the integration
   //Particle.publish("temperature", data, PRIVATE);
   // Wait 60 seconds
   Serial.println(ret);
   delay(60000);
+  digitalWrite(ledonboard, LOW);
 }
