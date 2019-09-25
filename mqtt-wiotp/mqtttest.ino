@@ -1,5 +1,5 @@
 #include <MQTT.h>
-char *IOT_CLIENT = "d:_org_id:device_type:AssetTracker001";
+char *IOT_CLIENT = "d:b0wmtp:ParticleElectron:AssetTracker007";
 char *IOT_HOST = "b0wmtp.messaging.internetofthings.ibmcloud.com";
 char *IOT_PASSWORD = "IoTBlockchain";
 char *IOT_PUBLISH = "iot-2/evt/temp/fmt/json";
@@ -14,6 +14,7 @@ void setup() {
 
   while( !Serial.available() ) {
     Particle.process();
+    //Users/grantsteinfeld/Downloads/mqtt-tls-wiotp/mqtt-tls-wiotp.ino
   }
 
   client.connect(

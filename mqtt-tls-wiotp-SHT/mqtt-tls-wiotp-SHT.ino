@@ -1,9 +1,14 @@
 #include <MQTT-TLS.h>
-char *IOT_CLIENT = "d:b0wmtp:ParticleElectron:AssetTracker00";
+#include <ArduinoJson.h>
+#include "math.h"
+#include <Adafruit_DHT_Particle.h>
+
+char *IOT_CLIENT = "d:b0wmtp:ParticleElectron:AssetTracker007";
 char *IOT_HOST = "b0wmtp.messaging.internetofthings.ibmcloud.com";
 char *IOT_PASSWORD = "IoTBlockchain";
 char *IOT_PUBLISH = "iot-2/evt/temp/fmt/json";
 char *IOT_USERNAME = "use-token-auth";
+
 #define WATSON_IOT_PLATFORM_CA_PEM                                      \
 "-----BEGIN CERTIFICATE----- \r\n"                                      \
 "MIIElDCCA3ygAwIBAgIQAf2j627KdciIQ4tyS8+8kTANBgkqhkiG9w0BAQsFADBh\r\n"  \
@@ -54,13 +59,15 @@ char *IOT_USERNAME = "use-token-auth";
 "YSEY1QSteDwsOoBrp+uvFRTp2InBuThs4pFsiv9kuXclVzDAGySj4dzp30d8tbQk\r\n"  \
 "CAUw7C29C79Fv1C5qfPrmAESrciIxpg0X40KPMbp1ZWVbd4=\r\n"                  \
 "-----END CERTIFICATE-----\r\n"
+
 const char WIoTPCaPem[] = WATSON_IOT_PLATFORM_CA_PEM;
+
 #define MQTT_TOPIC_INTERVAL "iot-2/cmd/interval/fmt/json"
+int  ReportingInterval = 10000; // Default reporting interval
 MQTT client( IOT_HOST, 8883, callback );
-// SHT Grove Sensor
-#include "math.h"
-// DHT
-#include <Adafruit_DHT_Particle.h>
+
+
+
 
 // DHT Sensor parameters
 // sensor type: [DHT11, DHT22, DHT21, AM2301]
@@ -71,30 +78,39 @@ MQTT client( IOT_HOST, 8883, callback );
 DHT dht(DHTPIN, DHTTYPE);
 
 
-
 #define ONE_DAY_MILLIS (24 * 60 * 60 * 1000)
-//unsigned long lastSync = millis();
+unsigned long lastSync = millis();
+
 void setup() {
-//    if (millis() - lastSync > ONE_DAY_MILLIS) {
-//        Particle.syncTime();
-//        lastSync = millis();
-//    }
+  if (millis() - lastSync > ONE_DAY_MILLIS) {
+    Particle.syncTime();
+    lastSync = millis();
+  }
+
   Serial.begin( 9600 );
+
   while( !Serial.available() ) {
     Particle.process();
   }
+
   Serial.println("Welcome to the Particle Electron MQTT TLS Example");
- 
-  dht.begin();
+
+  // Start the SHT31 sensor
+  // if (! sht31.begin(0x45)) {   // Set to 0x45 for alternate i2c addr
+  //   Serial.println("Couldn't find SHT31");
+  // }
+
   // enable tls. set Root CA pem file.
   // if you don't use TLS, comment out this line.
   client.enableTls(WIoTPCaPem, sizeof(WIoTPCaPem));
-  Serial.println("tls enable");
-  client.connect(
+  Serial.println("TLS secruity enabled");
+
+ client.connect(
     IOT_CLIENT,
     IOT_USERNAME,
     IOT_PASSWORD
   );
+
   if( client.isConnected() ) {
     Serial.println( "Connected." );
     // Subscribe to "iot-2/cmd/interval/fmt/json" messages
@@ -103,22 +119,71 @@ void setup() {
   } else {
     Serial.println( "Connection failed");
   }
+
+  dht.begin();
 }
+
+void EnsureConnected(){
+
+  if( client.isConnected() ) {
+    Serial.println( "Still Connected and subscribed ");
+  } else {
+    Serial.println( "Lost connection ... trying to reconnect!");
+    client.disconnect();
+    client.connect(
+      IOT_CLIENT,
+      IOT_USERNAME,
+      IOT_PASSWORD );
+
+    if( client.isConnected() ) {
+      Serial.println( "Connected." );
+    // Subscribe to "iot-2/cmd/interval/fmt/json" messages from Watson IoT Platform
+      client.subscribe( MQTT_TOPIC_INTERVAL );
+      Serial.println("Subscribed");
+    }
+  }
+
+}
+
+
+// String GetCurrentTempSHT() {
+//     float celsius, fahrenheit;
+//     String TempReading = String::format( "{\"d\":{\"Celsius\":0,\"Fahrenheit\":0}}" );
+
+//     // Read Celsius and Fahrenheit values from SHT sensor
+//     celsius = sht31.readTemperature();
+//     // float h = sht31.readHumidity();
+//     fahrenheit = (celsius* 9) /5 + 32;
+
+//     if (! isnan(celsius)) {  // check if 'is not a number'
+//         // now that we have the readings, we can publish them to the cloud
+//         // store celsius and fahrenheit temp readings in "temperature" stringified JSON
+//         TempReading = String::format("{\"d\":{\"Celsius\":%f,\"Fahrenheit\":%f}}", celsius, fahrenheit );
+
+//         Serial.print( "Sending MQTT TemperatureEvent : " );
+//         Serial.println( TempReading );
+//     }
+//     return( TempReading );
+// }
+
 String GetCurrentTemp() {
     float celsius, fahrenheit;
-    String TempReading = String::format( "{\"d\":{\"Celsius\":0,\"Fahrenheit\":0}}" );
-    // Read Celsius and Fahrenheit values from SHT sensor
+
+    // Read Celsius and Fahrenheit values from DHT sensor
     celsius    = dht.getTempCelcius();
     fahrenheit = dht.getTempFarenheit();
-    if (! isnan(celsius)) {  // check if 'is not a number'
-        // now that we have the readings, we can publish them to the cloud
-        // store celsius and fahrenheit temp readings in "temperature" stringified JSON
-        TempReading = String::format("{\"d\":{\"Celsius\":%f,\"Fahrenheit\":%f}}", celsius, fahrenheit );
-        Serial.print( "Sending MQTT TemperatureEvent : " );
-        Serial.println( TempReading );
-    }
+
+    // now that we have the readings, we can publish them to the cloud
+    // store celsius and fahrenheit temp readings in "temperature" stringified JSON
+    String temperature = String::format("{\"Celsius\":%f,\"Fahrenheit\":%f}", celsius, fahrenheit );
+    String TempReading;
+    TempReading = String("{\"Temp\":"+temperature+"}");
+    Serial.print( "Sending MQTT TemperatureEvent : " );
+    Serial.println( TempReading );
     return( TempReading );
 }
+
+
 void loop() {
   // String JSON;
   // count = AssetTrackerGetCurrentTemp( JSON );
@@ -126,31 +191,29 @@ void loop() {
   String JSON = GetCurrentTemp();
   Serial.println( JSON );
   client.publish( IOT_PUBLISH, JSON);
+
   client.loop();
-  if( client.isConnected() ) {
-    Serial.println( "Connected." );
-  } else {
-    Serial.println( "ReConnecting...");
-    client.connect(
-      IOT_CLIENT,
-      IOT_USERNAME,
-      IOT_PASSWORD
-    );
-    if( client.isConnected() ) {
-      Serial.println( "Connected." );
-      // Subscribe to "iot-2/cmd/interval/fmt/json" messages
-      // from Watson IoT Platform
-      client.subscribe( MQTT_TOPIC_INTERVAL );
-    }
-  }
-  delay( 5000 );
+  EnsureConnected();
+
+  delay( ReportingInterval );
 }
+
+
 void callback( char* topic, byte* payload, unsigned int length ) {
-  Serial.println( topic ) ;
-  char p[length + 1];
-  memcpy(p, payload, length);
-  p[length] = NULL;
-  String message(p);
-  //Serial.printf( "callback topic: %s", topic);
-  //Serial.printf( "callback message: %s\n", message );
+  payload[length] = '\0'; // Null terminator used to terminate the char array
+  Serial.printf( (char *)payload );
+  int newInterval ;
+  DynamicJsonDocument Interval(100);
+  DeserializationError err = deserializeJson(Interval, payload);
+  if( !err ) {
+    newInterval = Interval["Interval"];
+    // auto newInterval = Interval["Interval"].as<int>();
+    Serial.printf("\nInterval is %d\n", newInterval );
+    if( newInterval > 0 ) {
+      // Set global - millisecond sleep
+      ReportingInterval = newInterval  * 1000;
+      Serial.printf("Set Reporting Interval to %d\n", ReportingInterval );
+    }
+
+  }
 }
