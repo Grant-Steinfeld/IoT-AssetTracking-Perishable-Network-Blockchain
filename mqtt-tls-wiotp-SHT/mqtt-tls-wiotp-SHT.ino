@@ -167,15 +167,17 @@ void EnsureConnected(){
 // }
 
 String GetCurrentTemp() {
-    float celsius, fahrenheit;
+    float celsius, fahrenheit, humidity, dewpoint;
 
     // Read Celsius and Fahrenheit values from DHT sensor
     celsius    = dht.getTempCelcius();
     fahrenheit = dht.getTempFarenheit();
+    humidity = dht.getHumidity();
+    dewpoint = dht.getDewPoint();
 
     // now that we have the readings, we can publish them to the cloud
     // store celsius and fahrenheit temp readings in "temperature" stringified JSON
-    String temperature = String::format("{\"Celsius\":%f,\"Fahrenheit\":%f}", celsius, fahrenheit );
+    String temperature = String::format("{\"Celsius\":%f,\"Fahrenheit\":%f,\"Humidity\":%f,\"DewPoint\":%f}", celsius, fahrenheit, humidity, dewpoint );
     String TempReading;
     TempReading = String("{\"Temp\":"+temperature+"}");
     Serial.print( "Sending MQTT TemperatureEvent : " );
